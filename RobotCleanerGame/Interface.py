@@ -10,40 +10,60 @@ class Interface:
     def __init__(self, game: RobotCleanerGame.Game):
         self.game = game
 
-    def get_action_list(self):
-        actions = {"moves": self.game.get_available_move_coordinates()}
+    def get_possible_actions(self):
+        actions = []
+        # Moves first
+        for c in self.game.get_available_move_coordinates():
+            actions.append(RobotCleanerGame.Move(c))
 
         return actions
 
-    def get_game_state(self):
-        return self.game
-
-    """ don't like this at all, prefer action list concept
     @staticmethod
-    def request_input(prompt: str, validation_values=None, convert_to_lowercase=True):
+    def request_input(prompt: str, validation_values=None, convert_to_int=False, convert_to_lowercase=True):
         if validation_values is None:
             validation_values = []
 
         while True:
             received = input(prompt)
 
+            if convert_to_int:
+                received = int(received)
+
             if convert_to_lowercase:
                 received = received.lower()
 
-            if not validation_values or received in validation_values:
+            if received in validation_values or not validation_values:
                 return received
             else:
                 print("Value not accepted, please try again.\n")
 
-    def request_move(self):
-        prompt = "MOVE: enter "
-        validation_list = []
-        available_moves = self.game.get_available_moves()
-        for move in available_moves:
-            validation_list.append(move_map[move])
-            prompt = prompt + move_text_map[move]
+    def action_list_feedback(self):
+        possible = self.get_possible_actions()
 
-        return move_map_inv[self.request_input(prompt, validation_list)]"""
+        lookup = {}
+        count = 0
+
+        print(f"Please select an action:")
+        for a in possible:
+            match a.__class__.__name__:
+                case "Move":
+                    print(f"{count} : move to {a.location}")
+                case _:
+                    print(f"{count} : unknown action")
+
+            lookup[count] = a
+            count = count + 1
+
+        selected = self.request_input("\nSelect action: ", convert_to_int=True, convert_to_lowercase=False)
+
+        return lookup[selected]
+
+    def process_action(self, action):
+        match action.__class__.__name__:
+            case "Move":
+                self.game.apply_move(action.location)
+            case _:
+                pass
 
 
 if __name__ == "__main__":

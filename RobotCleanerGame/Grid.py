@@ -56,7 +56,7 @@ class Grid:
     def get_adjacent_coordinates(self, from_coord: (int, int)):
         adjacent_coordinates = []
 
-        for move in RobotCleanerGame.move_list:
+        for move in RobotCleanerGame.MOVE_LIST:
             x = from_coord[0] + move[0]
             if x < 0 or x >= self.size_x:
                 continue
