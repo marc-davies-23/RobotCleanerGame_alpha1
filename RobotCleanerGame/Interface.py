@@ -11,7 +11,7 @@ class Interface:
         self.game = game
 
     def get_action_list(self):
-        actions = {"moves": self.game.get_available_moves()}
+        actions = {"moves": self.game.get_available_move_coordinates()}
 
         return actions
 
@@ -47,8 +47,4 @@ class Interface:
 
 
 if __name__ == "__main__":
-    iface = Interface(RobotCleanerGame.Game())
-    iface.game.initialise_grid(3, 3, (2, 2))
-    print(iface.game.grid)
-    print(iface.get_action_list())
-
+    pass

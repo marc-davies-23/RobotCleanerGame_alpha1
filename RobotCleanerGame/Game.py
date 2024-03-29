@@ -29,14 +29,12 @@ class Game:
 
         return available_move_coords
 
-    def apply_move(self, move: (int, int)):
+    def apply_move(self, new_coords: (int, int)):
         self.robot.history.append(self.robot.location)
         self.grid.get_tile(self.robot.location).clear()
 
-        x = self.robot.location[0] + move[0]
-        y = self.robot.location[1] + move[1]
-        self.grid.set_tile((x, y), RobotCleanerGame.ROBOT_TOKEN)
-        self.robot.location = (x, y)
+        self.grid.set_tile(new_coords, RobotCleanerGame.ROBOT_TOKEN)
+        self.robot.location = new_coords
 
 
 if __name__ == "__main__":
