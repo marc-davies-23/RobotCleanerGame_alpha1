@@ -18,7 +18,7 @@ MAX_SWEEP = 1
 class Robot:
     def __init__(self, start=None, stack=None):
         if start is None:
-            start = [0, 0]
+            start = (0, 0)
         if stack is None:
             stack = []
         self.location = start

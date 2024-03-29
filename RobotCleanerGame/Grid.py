@@ -49,11 +49,11 @@ class Grid:
 
         return out
 
-    def get_tile(self, coords: [int, int]):
-        return self.grid[coords[1]][coords[0]]
+    def get_tile(self, coordinates: (int, int)):
+        return self.grid[coordinates[1]][coordinates[0]]
 
-    def set_tile(self, coords: [int, int], new_content) -> None:
-        self.grid[coords[1]][coords[0]].fill(new_content)
+    def set_tile(self, coordinates: (int, int), new_content) -> None:
+        self.grid[coordinates[1]][coordinates[0]].fill(new_content)
 
 
 if __name__ == "__main__":

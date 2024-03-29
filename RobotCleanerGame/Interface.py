@@ -5,31 +5,18 @@
 """
 import RobotCleanerGame
 
-move_map = {
-    (1, 0): 'd',
-    (-1, 0): 'a',
-    (0, 1): 's',
-    (0, -1): 'w',
-}
-
-move_map_inv = {
-    'd': (1, 0),
-    'a': (-1, 0),
-    's': (0, 1),
-    'w': (0, -1),
-}
-
-move_text_map = {
-    (1, 0): "D: left",
-    (-1, 0): "A: right",
-    (0, 1): "S: down",
-    (0, -1): "W: up",
-}
-
 
 class Interface:
     def __init__(self, game: RobotCleanerGame.Game):
         self.game = game
+
+    def get_action_list(self):
+        actions = {"moves": self.game.get_available_moves()}
+
+        return actions
+
+    def get_game_state(self):
+        return self.game
 
     """ don't like this at all, prefer action list concept
     @staticmethod
@@ -60,4 +47,6 @@ class Interface:
 
 
 if __name__ == "__main__":
-    pass
+    iface = Interface(RobotCleanerGame.Game())
+    iface.game.initialise_grid(5, 7)
+    print(iface.get_action_list())

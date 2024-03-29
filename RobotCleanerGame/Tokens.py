@@ -11,7 +11,7 @@
     Properties of tokens:
      - if an item, can be picked up or dropped
      - if a receptacle, can accept an item of appropriate type
-     - if mess, can be swept
+     - if a mess, can be swept
 
 """
 ITEM_TOKEN_TYPE = 1

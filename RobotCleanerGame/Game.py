@@ -10,8 +10,6 @@ class Game:
     grid = None
     robot = None
 
-    move_list = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-
     def initialise_grid(self, size_x: int, size_y: int, robot_start=None):
         self.grid = RobotCleanerGame.Grid(size_x, size_y)
         if robot_start is None:
@@ -24,7 +22,7 @@ class Game:
     def get_available_moves(self):
         available_moves = []
 
-        for move in Game.move_list:
+        for move in RobotCleanerGame.move_list:
             x = self.robot.location[0] + move[0]
             if x < 0 or x > self.grid.x:
                 continue
