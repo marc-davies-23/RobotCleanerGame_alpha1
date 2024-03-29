@@ -19,21 +19,15 @@ class Game:
 
         self.grid.set_tile(self.robot.location, RobotCleanerGame.ROBOT_TOKEN)
 
-    def get_available_moves(self):
-        available_moves = []
+    def get_available_move_coordinates(self):
+        available_move_coords = []
 
-        for move in RobotCleanerGame.move_list:
-            x = self.robot.location[0] + move[0]
-            if x < 0 or x > self.grid.x:
-                continue
-            y = self.robot.location[1] + move[1]
-            if y < 0 or y > self.grid.y:
-                continue
+        for coord in self.grid.get_adjacent_coordinates(self.robot.location):
 
-            if self.grid.get_tile([x, y]).is_empty():
-                available_moves.append(move)
+            if self.grid.get_tile(coord).is_empty():
+                available_move_coords.append(coord)
 
-        return available_moves
+        return available_move_coords
 
     def apply_move(self, move: (int, int)):
         self.robot.history.append(self.robot.location)
@@ -41,7 +35,8 @@ class Game:
 
         x = self.robot.location[0] + move[0]
         y = self.robot.location[1] + move[1]
-        self.grid.set_tile([x, y], RobotCleanerGame.ROBOT_TOKEN)
+        self.grid.set_tile((x, y), RobotCleanerGame.ROBOT_TOKEN)
+        self.robot.location = (x, y)
 
 
 if __name__ == "__main__":
