@@ -63,6 +63,7 @@ class Grid:
             y = from_coord[1] + move[1]
             if y < 0 or y >= self.size_y:
                 continue
+
             adjacent_coordinates.append((x, y))
 
         return adjacent_coordinates

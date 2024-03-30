@@ -9,6 +9,11 @@ import RobotCleanerGame
 class Game:
     grid = None
     robot = None
+    interface = None
+
+    def __init__(self, interface=None):
+        if interface is None:
+            self.interface = RobotCleanerGame.Interface(game=self)
 
     def initialise_grid(self, size_x: int, size_y: int, robot_start=None):
         self.grid = RobotCleanerGame.Grid(size_x, size_y)
@@ -35,6 +40,12 @@ class Game:
 
         self.grid.set_tile(new_coords, RobotCleanerGame.ROBOT_TOKEN)
         self.robot.location = new_coords
+
+    def start_control_loop(self):
+        if self.interface is None:
+            raise Exception("No Interface set")
+
+        pass
 
 
 if __name__ == "__main__":
