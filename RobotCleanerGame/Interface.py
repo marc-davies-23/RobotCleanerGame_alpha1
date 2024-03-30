@@ -4,11 +4,18 @@
 
 """
 import RobotCleanerGame
+import string
 
 
 class Interface:
     def __init__(self, game: RobotCleanerGame.Game):
         self.game = game
+
+    def show_current_state(self):
+        if self.game.grid:
+            print(self.game.grid)
+        else:
+            print(f"Grid not initialised")
 
     def get_possible_actions(self):
         actions = []
@@ -19,17 +26,16 @@ class Interface:
         return actions
 
     @staticmethod
-    def request_input(prompt: str, validation_values=None, convert_to_int=False, convert_to_lowercase=True):
+    def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True):
         if validation_values is None:
             validation_values = []
 
         while True:
             received = input(prompt)
 
-            if convert_to_int:
+            if convert_to_int and received in string.digits:
                 received = int(received)
-
-            if convert_to_lowercase:
+            elif convert_to_lowercase and not (received in string.digits):
                 received = received.lower()
 
             if received in validation_values or not validation_values:
@@ -37,7 +43,7 @@ class Interface:
             else:
                 print("Value not accepted, please try again.\n")
 
-    def action_list_feedback(self):
+    def action_list_feedback(self) -> RobotCleanerGame.Action:
         possible = self.get_possible_actions()
 
         lookup = {}
@@ -54,16 +60,22 @@ class Interface:
             lookup[count] = a
             count = count + 1
 
-        selected = self.request_input("\nSelect action: ", convert_to_int=True, convert_to_lowercase=False)
+        # Quit command
+        print(f"Q : Quit")
+        lookup["q"] = RobotCleanerGame.Quit()
+
+        selected = self.request_input("\nSelect action: ", validation_values=list(lookup.keys()))
 
         return lookup[selected]
 
-    def process_action(self, action):
+    def process_action(self, action) -> bool:
         match action.__class__.__name__:
             case "Move":
                 self.game.apply_move(action.location)
+                return True  # Continue
             case _:
-                pass
+                # This implicitly catches Quit commands
+                return False  # Don't continue
 
 
 if __name__ == "__main__":

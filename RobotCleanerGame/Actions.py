@@ -10,6 +10,10 @@ class Move(Action):
         self.location = location
 
 
+class Quit(Action):
+    pass
+
+
 if __name__ == "__main__":
     pass
     """

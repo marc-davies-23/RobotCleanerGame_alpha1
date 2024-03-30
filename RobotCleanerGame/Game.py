@@ -45,7 +45,14 @@ class Game:
         if self.interface is None:
             raise Exception("No Interface set")
 
-        pass
+        go = True
+
+        while go:
+            self.interface.show_current_state()
+
+            action = self.interface.action_list_feedback()
+
+            go = self.interface.process_action(action)
 
 
 if __name__ == "__main__":
