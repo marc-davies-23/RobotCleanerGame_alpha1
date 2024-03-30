@@ -47,7 +47,7 @@ class Interface:
         possible = self.get_possible_actions()
 
         lookup = {}
-        count = 0
+        count = 1
 
         print(f"Please select an action:")
         for a in possible:
@@ -60,6 +60,10 @@ class Interface:
             lookup[count] = a
             count = count + 1
 
+        # Refresh Grid command
+        print(f"R : Refresh Grid")
+        lookup["r"] = RobotCleanerGame.Refresh()
+
         # Quit command
         print(f"Q : Quit")
         lookup["q"] = RobotCleanerGame.Quit()
@@ -71,7 +75,10 @@ class Interface:
     def process_action(self, action) -> bool:
         match action.__class__.__name__:
             case "Move":
-                self.game.apply_move(action.location)
+                self.game.apply_move(action)
+                return True  # Continue
+            case "Refresh":
+                self.show_current_state()
                 return True  # Continue
             case _:
                 # This implicitly catches Quit commands

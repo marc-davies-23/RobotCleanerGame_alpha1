@@ -14,15 +14,11 @@
      - if a mess, can be swept
 
 """
-ITEM_TOKEN_TYPE = 1
-BIN_TOKEN_TYPE = 2
-MESS_TOKEN_TYPE = 3
-ROBOT_TOKEN_TYPE = 4
 
 ROBOT_TOKEN = "¥"
 
 # Tokens short reference & description
-token_descriptions: dict[str, str] = {
+TOKEN_DESCRIPTIONS: dict[str, str] = {
     "r": "Red Item",
     "g": "Green Item",
     "b": "Blue Item",
@@ -36,30 +32,29 @@ token_descriptions: dict[str, str] = {
 
 
 class TokenProperties:
-    type = 0
+    can_pick = False
+    can_sweep = False
+    is_bin = False
+    is_player = False
 
 
 class TokenItem(TokenProperties):
-    def __init__(self):
-        self.type = ITEM_TOKEN_TYPE
+    can_pick = True
 
 
 class TokenBin(TokenProperties):
-    def __init__(self):
-        self.type = BIN_TOKEN_TYPE
+    is_bin = True
 
 
 class TokenMess(TokenProperties):
-    def __init__(self):
-        self.type = MESS_TOKEN_TYPE
+    can_sweep = True
 
 
 class TokenRobot(TokenProperties):
-    def __init__(self):
-        self.type = ROBOT_TOKEN_TYPE
+    is_player = True
 
 
-token_properties: dict[str, TokenProperties] = {
+TOKEN_PROPERTIES: dict[str, TokenProperties] = {
     "r": TokenItem(),
     "g": TokenItem(),
     "b": TokenItem(),
@@ -70,9 +65,9 @@ token_properties: dict[str, TokenProperties] = {
     ROBOT_TOKEN: TokenRobot(),
 }
 
-items = ["r", "g", "b"]
+ITEMS = ["r", "g", "b"]
 
-item_to_bin_map = {
+ITEMS_TO_BIN_MAP = {
     "r": ["R", "*"],
     "g": ["G", "*"],
     "b": ["B", "*"],

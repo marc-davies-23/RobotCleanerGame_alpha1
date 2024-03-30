@@ -22,7 +22,6 @@ class Robot:
         if stack is None:
             stack = []
         self.location = start
-        self.history = []
         self.stack = stack
 
     def pickup(self, item):

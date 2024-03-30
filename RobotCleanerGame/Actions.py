@@ -11,7 +11,11 @@ class Move(Action):
 
 
 class Quit(Action):
-    pass
+    location = None
+
+
+class Refresh(Action):
+    location = None
 
 
 if __name__ == "__main__":

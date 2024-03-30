@@ -3,26 +3,31 @@
     Class for the main game loop & controls
 
 """
-import RobotCleanerGame
+import RobotCleanerGame as rcg
 
 
 class Game:
-    grid = None
-    robot = None
-    interface = None
+    grid: rcg.Grid
+    robot: rcg.Robot
+    interface: rcg.Interface
+    history: list[rcg.Actions]
 
-    def __init__(self, interface=None):
+    def __init__(self, interface=None, history=None):
         if interface is None:
-            self.interface = RobotCleanerGame.Interface(game=self)
+            self.interface = rcg.Interface(game=self)
+        else:
+            self.interface = interface
+
+        if history is None:
+            self.history = []
+        else:
+            self.history = history
 
     def initialise_grid(self, size_x: int, size_y: int, robot_start=None):
-        self.grid = RobotCleanerGame.Grid(size_x, size_y)
-        if robot_start is None:
-            self.robot = RobotCleanerGame.Robot()
-        else:
-            self.robot = RobotCleanerGame.Robot(start=robot_start)
+        self.grid = rcg.Grid(size_x, size_y)
+        self.robot = rcg.Robot(start=robot_start)
 
-        self.grid.set_tile(self.robot.location, RobotCleanerGame.ROBOT_TOKEN)
+        self.grid.set_tile(self.robot.location, rcg.ROBOT_TOKEN)
 
     def get_available_move_coordinates(self):
         available_move_coords = []
@@ -34,12 +39,11 @@ class Game:
 
         return available_move_coords
 
-    def apply_move(self, new_coords: (int, int)):
-        self.robot.history.append(self.robot.location)
+    def apply_move(self, move: rcg.Move):
         self.grid.get_tile(self.robot.location).clear()
 
-        self.grid.set_tile(new_coords, RobotCleanerGame.ROBOT_TOKEN)
-        self.robot.location = new_coords
+        self.grid.set_tile(move.location, rcg.ROBOT_TOKEN)
+        self.robot.location = move.location
 
     def start_control_loop(self):
         if self.interface is None:
