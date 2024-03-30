@@ -3,12 +3,12 @@
     This class is the generic console interface between player & program
 
 """
-import RobotCleanerGame
+import RobotCleanerGame as rCG
 import string
 
 
 class Interface:
-    def __init__(self, game: RobotCleanerGame.Game):
+    def __init__(self, game: rCG.Game):
         self.game = game
 
     def show_current_state(self):
@@ -21,7 +21,7 @@ class Interface:
         actions = []
         # Moves first
         for c in self.game.get_available_move_coordinates():
-            actions.append(RobotCleanerGame.Move(c))
+            actions.append(rCG.Move(c))
 
         return actions
 
@@ -43,7 +43,7 @@ class Interface:
             else:
                 print("Value not accepted, please try again.\n")
 
-    def action_list_feedback(self) -> RobotCleanerGame.Action:
+    def action_list_feedback(self) -> rCG.Action:
         possible = self.get_possible_actions()
 
         lookup = {}
@@ -62,11 +62,11 @@ class Interface:
 
         # Refresh Grid command
         print(f"R : Refresh Grid")
-        lookup["r"] = RobotCleanerGame.Refresh()
+        lookup["r"] = rCG.Refresh()
 
         # Quit command
         print(f"Q : Quit")
-        lookup["q"] = RobotCleanerGame.Quit()
+        lookup["q"] = rCG.Quit()
 
         selected = self.request_input("\nSelect action: ", validation_values=list(lookup.keys()))
 

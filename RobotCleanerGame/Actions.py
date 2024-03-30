@@ -2,7 +2,7 @@ MOVE_LIST = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 
 
 class Action:
-    location: (int, int)
+    pass
 
 
 class Move(Action):
@@ -11,11 +11,11 @@ class Move(Action):
 
 
 class Quit(Action):
-    location = None
+    pass
 
 
 class Refresh(Action):
-    location = None
+    pass
 
 
 if __name__ == "__main__":

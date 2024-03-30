@@ -61,6 +61,7 @@ TOKEN_PROPERTIES: dict[str, TokenProperties] = {
     "R": TokenBin(),
     "G": TokenBin(),
     "B": TokenBin(),
+    "*": TokenBin(),
     "m": TokenMess(),
     ROBOT_TOKEN: TokenRobot(),
 }
@@ -68,6 +69,7 @@ TOKEN_PROPERTIES: dict[str, TokenProperties] = {
 ITEMS = ["r", "g", "b"]
 
 ITEMS_TO_BIN_MAP = {
+    # Item : Bins which accept that item
     "r": ["R", "*"],
     "g": ["G", "*"],
     "b": ["B", "*"],
