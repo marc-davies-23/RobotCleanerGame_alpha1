@@ -5,7 +5,17 @@ class Action:
     pass
 
 
+class Drop(Action):
+    def __init__(self, location: (int, int)):
+        self.location = location
+
+
 class Move(Action):
+    def __init__(self, location: (int, int)):
+        self.location = location
+
+
+class PickUp(Action):
     def __init__(self, location: (int, int)):
         self.location = location
 
@@ -16,6 +26,11 @@ class Quit(Action):
 
 class Refresh(Action):
     pass
+
+
+class Sweep(Action):
+    def __init__(self, location: (int, int)):
+        self.location = location
 
 
 if __name__ == "__main__":

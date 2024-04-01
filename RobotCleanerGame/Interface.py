@@ -17,13 +17,21 @@ class Interface:
         else:
             print(f"Grid not initialised")
 
-    def get_possible_actions(self):
-        actions = []
-        # Moves first
-        for c in self.game.get_available_move_coordinates():
-            actions.append(rCG.Move(c))
-
-        return actions
+        if self.game.robot:
+            if self.game.robot.stack:
+                print(f"Stack > ", end="")
+                for index, item in enumerate(self.game.robot.stack):
+                    end = ""
+                    if index == len(self.game.robot.stack) - 1:
+                        end = "\n"
+                    else:
+                        end = ", "
+                    print(f"{item}", end=end)
+            else:
+                print(f"Stack > empty")
+            print("")
+        else:
+            print(f"Robot not initialised")
 
     @staticmethod
     def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True):
@@ -31,37 +39,45 @@ class Interface:
             validation_values = []
 
         while True:
-            received = input(prompt)
 
-            if convert_to_int and received in string.digits:
-                received = int(received)
-            elif convert_to_lowercase and not (received in string.digits):
-                received = received.lower()
+            try:
+                received = input(prompt)
 
-            if received in validation_values or not validation_values:
-                return received
-            else:
-                print("Value not accepted, please try again.\n")
+                if convert_to_int and received in string.digits:
+                    received = int(received)
+                elif convert_to_lowercase and not (received in string.digits):
+                    received = received.lower()
+
+                if received in validation_values or not validation_values:
+                    return received
+                else:
+                    print("Value not accepted, please try again.\n")
+            except ValueError:
+                print("Value error, please try again.\n")
 
     def action_list_feedback(self) -> rCG.Action:
-        possible = self.get_possible_actions()
-
         lookup = {}
-        count = 1
 
         print(f"Please select an action:")
-        for a in possible:
+        for count, a in enumerate(self.game.get_possible_actions()):
+            disp_count = count + 1
+            print(f"{disp_count} : ", end="")
             match a.__class__.__name__:
+                case "Drop":
+                    print(f"drop to {a.location}")
                 case "Move":
-                    print(f"{count} : move to {a.location}")
+                    print(f"move to {a.location}")
+                case "PickUp":
+                    print(f"pick-up from {a.location}")
+                case "Sweep":
+                    print(f"sweep {a.location}")
                 case _:
-                    print(f"{count} : unknown action")
+                    print(f"unknown action")
 
-            lookup[count] = a
-            count = count + 1
+            lookup[disp_count] = a
 
-        # Refresh Grid command
-        print(f"R : Refresh Grid")
+        # Refresh command
+        print(f"R : Refresh")
         lookup["r"] = rCG.Refresh()
 
         # Quit command
@@ -73,16 +89,27 @@ class Interface:
         return lookup[selected]
 
     def process_action(self, action) -> bool:
+        # Boolean return determines whether the action is a stopper or not; False = stop
+        self.game.history.append(action)
         match action.__class__.__name__:
+            case "Drop":
+                if not self.game.apply_drop(action):
+                    print("Drop failed!")
             case "Move":
                 self.game.apply_move(action)
-                return True  # Continue
+            case "PickUp":
+                self.game.apply_pickup(action)
             case "Refresh":
                 self.show_current_state()
-                return True  # Continue
-            case _:
-                # This implicitly catches Quit commands
+            case "Sweep":
+                self.game.apply_sweep(action)
+            case "Quit":
                 return False  # Don't continue
+            case _:
+                print("Unknown action")
+
+        # Continue by default
+        return True
 
 
 if __name__ == "__main__":

@@ -15,8 +15,17 @@ class Tile:
     def __str__(self):
         return self.content
 
+    def is_bin(self):
+        return self.content in rCG.BINS
+
     def is_empty(self):
         return self.content == EMPTY_TILE
+
+    def is_item(self):
+        return self.content in rCG.ITEMS
+
+    def is_mess(self):
+        return self.content in rCG.MESS
 
     def fill(self, new_content):
         if self.is_empty():

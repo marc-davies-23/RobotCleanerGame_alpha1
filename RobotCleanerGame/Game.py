@@ -14,9 +14,11 @@ class Game:
     history: list[rCG.Actions]
     """
 
-    def __init__(self, interface=None, history=None):
-        self.robot = None
+    def __init__(self, size_x: int, size_y: int, robot_start=None, interface=None, history=None):
         self.grid = None
+        self.robot = None
+        self.initialise_grid(size_x, size_y, robot_start)
+
         if interface is None:
             self.interface = rCG.Interface(game=self)
         else:
@@ -33,21 +35,76 @@ class Game:
 
         self.grid.set_tile(self.robot.location, rCG.ROBOT_TOKEN)
 
-    def get_available_move_coordinates(self):
-        available_move_coords = []
+    def add_token(self, coords: (int, int), token_symbol):
+        if not (token_symbol in rCG.ITEMS | rCG.BINS | rCG.MESS):
+            raise ValueError("Game.add_token: token_symbol not valid")
+
+        self.grid.set_tile(coords, token_symbol)
+
+    def get_possible_actions(self):
+        actions = []
 
         for coord in self.grid.get_adjacent_coordinates(self.robot.location):
 
-            if self.grid.get_tile(coord).is_empty():
-                available_move_coords.append(coord)
+            tile = self.grid.get_tile(coord)
 
-        return available_move_coords
+            if tile.is_empty():
+                # Can move or drop into an empty co-ord
+                actions.append(rCG.Move(coord))
+                if not self.robot.is_stack_empty():
+                    actions.append(rCG.Drop(coord))
+            elif tile.is_bin():
+                # Can -- potentially -- drop an item into a bin
+                if not self.robot.is_stack_empty():
+                    actions.append(rCG.Drop(coord))
+            elif tile.is_item():
+                # Can pick up an item
+                actions.append(rCG.PickUp(coord))
+            elif tile.is_mess():
+                actions.append(rCG.Sweep(coord))
+
+        return actions
+
+    def apply_drop(self, drop: rCG.Drop) -> bool:
+        # Boolean return indicates whether item successfully dropped or not
+        # First, pop the item; if we find nothing, exit
+        if not (item := self.robot.drop()):
+            return False
+
+        # Can drop into empty tiles or bins; bins are more complicated. Deal with empty tile first
+        tile = self.grid.get_tile(drop.location)
+
+        if tile.is_empty():
+            self.grid.set_tile(drop.location, item)
+            return True
+
+        # If we get to here we're dealing with bin tiles
+        if tile.content in rCG.ITEMS_TO_BIN_MAP[item]:
+            # Accepted bin; we don't need to set the item here, it is "destroyed"
+            return True
+        else:
+            # The robot can't drop the item otherwise so the robot has to pick it up again
+            self.robot.pickup(item)
+            return False
 
     def apply_move(self, move: rCG.Move):
         self.grid.get_tile(self.robot.location).clear()
 
         self.grid.set_tile(move.location, rCG.ROBOT_TOKEN)
         self.robot.location = move.location
+
+    def apply_pickup(self, pickup: rCG.PickUp):
+        tile = self.grid.get_tile(pickup.location)
+        if not tile.is_item():
+            raise ValueError("Game.apply_pickup: wrong token type")
+
+        if self.robot.pickup(tile.content):
+            tile.clear()
+
+    def apply_sweep(self, sweep: rCG.Sweep):
+        tile = self.grid.get_tile(sweep.location)
+        if tile.is_mess():
+            tile.clear()
 
     def start_control_loop(self):
         if self.interface is None:

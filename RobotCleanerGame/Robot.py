@@ -27,15 +27,18 @@ class Robot:
     def pickup(self, item):
         if len(self.stack) < MAX_CARRY:
             self.stack.append(item)
-            return 1  # OK
+            return True  # OK
         else:
-            return 0  # Not OK
+            return False  # Not OK
 
     def drop(self):
         if len(self.stack) > 0:
             return self.stack.pop()  # OK
         else:
-            return 0  # Not OK
+            return False  # Not OK
+
+    def is_stack_empty(self):
+        return self.stack == []
 
     def sweep(self):
         if len(self.stack) >= MAX_SWEEP:

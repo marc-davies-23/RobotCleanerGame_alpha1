@@ -30,7 +30,8 @@ TOKEN_DESCRIPTIONS: dict[str, str] = {
     ROBOT_TOKEN: "Robot",
 }
 
-
+"""
+## Not used yet, maybe later
 class TokenProperties:
     can_pick = False
     can_sweep = False
@@ -65,14 +66,19 @@ TOKEN_PROPERTIES: dict[str, TokenProperties] = {
     "m": TokenMess(),
     ROBOT_TOKEN: TokenRobot(),
 }
+"""
 
-ITEMS = ["r", "g", "b"]
+ITEMS = {"r", "g", "b"}
+
+BINS = {"R", "G", "B", "*"}
+
+MESS = {"m"}
 
 ITEMS_TO_BIN_MAP = {
     # Item : Bins which accept that item
-    "r": ["R", "*"],
-    "g": ["G", "*"],
-    "b": ["B", "*"],
+    "r": {"R", "*"},
+    "g": {"G", "*"},
+    "b": {"B", "*"},
 }
 
 if __name__ == "__main__":
