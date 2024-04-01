@@ -108,7 +108,7 @@ class Game:
 
     def start_control_loop(self):
         if self.interface is None:
-            raise Exception("No Interface set")
+            raise Exception("Game.start_control_loop: No Interface set")
 
         go = True
 
