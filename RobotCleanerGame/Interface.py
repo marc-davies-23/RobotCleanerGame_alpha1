@@ -21,7 +21,6 @@ class Interface:
             if self.game.robot.stack:
                 print(f"Stack > ", end="")
                 for index, item in enumerate(self.game.robot.stack):
-                    end = ""
                     if index == len(self.game.robot.stack) - 1:
                         end = "\n"
                     else:
@@ -63,16 +62,16 @@ class Interface:
             disp_count = count + 1
             print(f"{disp_count} : ", end="")
             match a.__class__.__name__:
-                case "Drop":
-                    print(f"drop to {a.location}")
-                case "Move":
-                    print(f"move to {a.location}")
-                case "PickUp":
-                    print(f"pick-up from {a.location}")
-                case "Sweep":
-                    print(f"sweep {a.location}")
+                case rCG.Drop.__name__:
+                    print(f"drop to {a.coords}")
+                case rCG.Move.__name__:
+                    print(f"move to {a.coords}")
+                case rCG.PickUp.__name__:
+                    print(f"pick-up from {a.coords}")
+                case rCG.Sweep.__name__:
+                    print(f"sweep {a.coords}")
                 case _:
-                    print(f"unknown action")
+                    raise ValueError(f"Interface.action_list_feedback: {a.__class__.__name__} not matched")
 
             lookup[disp_count] = a
 
@@ -92,21 +91,21 @@ class Interface:
         # Boolean return determines whether the action is a stopper or not; False = stop
         self.game.history.append(action)
         match action.__class__.__name__:
-            case "Drop":
+            case rCG.Drop.__name__:
                 if not self.game.apply_drop(action):
                     print("Drop failed!")
-            case "Move":
+            case rCG.Move.__name__:
                 self.game.apply_move(action)
-            case "PickUp":
+            case rCG.PickUp.__name__:
                 self.game.apply_pickup(action)
-            case "Refresh":
+            case rCG.Refresh.__name__:
                 self.show_current_state()
-            case "Sweep":
+            case rCG.Sweep.__name__:
                 self.game.apply_sweep(action)
-            case "Quit":
+            case rCG.Quit.__name__:
                 return False  # Don't continue
             case _:
-                print("Unknown action")
+                raise ValueError(f"Interface.process_action: {action.__class__.__name__} not matched")
 
         # Continue by default
         return True

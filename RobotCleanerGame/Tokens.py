@@ -68,11 +68,11 @@ TOKEN_PROPERTIES: dict[str, TokenProperties] = {
 }
 """
 
-ITEMS = {"r", "g", "b"}
+SET_OF_ITEMS = {"r", "g", "b"}
 
-BINS = {"R", "G", "B", "*"}
+SET_OF_BINS = {"R", "G", "B", "*"}
 
-MESS = {"m"}
+SET_OF_MESS = {"m"}
 
 ITEMS_TO_BIN_MAP = {
     # Item : Bins which accept that item

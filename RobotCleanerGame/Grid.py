@@ -10,32 +10,35 @@ EMPTY_TILE = "."
 
 class Tile:
     def __init__(self):
-        self.content = EMPTY_TILE
+        self.__content = EMPTY_TILE
 
     def __str__(self):
-        return self.content
+        return self.__content
 
     def is_bin(self):
-        return self.content in rCG.BINS
+        return self.__content in rCG.SET_OF_BINS
 
     def is_empty(self):
-        return self.content == EMPTY_TILE
+        return self.__content == EMPTY_TILE
 
     def is_item(self):
-        return self.content in rCG.ITEMS
+        return self.__content in rCG.SET_OF_ITEMS
 
     def is_mess(self):
-        return self.content in rCG.MESS
+        return self.__content in rCG.SET_OF_MESS
 
-    def fill(self, new_content):
+    def content(self):
+        return self.__content
+
+    def set(self, new_content):
         if self.is_empty():
-            self.content = new_content
-            return 1  # OK
+            self.__content = new_content
+            return True  # OK
         else:
-            return 0  # Not OK
+            return False  # Not OK
 
     def clear(self):
-        self.content = EMPTY_TILE
+        self.__content = EMPTY_TILE
 
 
 class Grid:
@@ -54,7 +57,7 @@ class Grid:
         out = ""
         for j in self.grid:
             for i in j:
-                out = out + i.content
+                out = out + i.content()
             out = out + "\n"
 
         return out
@@ -62,14 +65,14 @@ class Grid:
     def get_tile(self, coordinates: (int, int)):
         return self.grid[coordinates[1]][coordinates[0]]
 
-    def get_adjacent_coordinates(self, from_coord: (int, int)):
+    def get_adjacent_coordinates(self, from_cds: (int, int)):
         adjacent_coordinates = []
 
         for move in rCG.MOVE_LIST:
-            x = from_coord[0] + move[0]
+            x = from_cds[0] + move[0]
             if x < 0 or x >= self.size_x:
                 continue
-            y = from_coord[1] + move[1]
+            y = from_cds[1] + move[1]
             if y < 0 or y >= self.size_y:
                 continue
 
@@ -77,8 +80,9 @@ class Grid:
 
         return adjacent_coordinates
 
-    def set_tile(self, coordinates: (int, int), new_content) -> None:
-        self.grid[coordinates[1]][coordinates[0]].fill(new_content)
+    def set_tile(self, coordinates: (int, int), content) -> None:
+        if not self.grid[coordinates[1]][coordinates[0]].set(content):
+            raise ValueError(f"Grid.set_tile: could not set content")
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@
     .pickup(): the robot picks up an item
     .drop(): the robot drops an item it is carrying; it must drop the "topmost" item
     .sweep(): the robot sweeps the mess from a square; it can only do this when it is carrying at most MAX_SWEEP items
+    .is_stack_empty(): checks whether robot's stack is empty or not
 
 """
 
@@ -21,7 +22,7 @@ class Robot:
             start = (0, 0)
         if stack is None:
             stack = []
-        self.location = start
+        self.coords = start
         self.stack = stack
 
     def pickup(self, item):
