@@ -23,8 +23,9 @@ class Interface:
         if self.game.robot:
             if self.game.robot.stack:
                 print(f"Stack > ", end="")
+                max_idx = len(self.game.robot.stack) - 1
                 for index, item in enumerate(self.game.robot.stack):
-                    if index == len(self.game.robot.stack) - 1:
+                    if index == max_idx:
                         end = "\n"
                     else:
                         end = ", "
