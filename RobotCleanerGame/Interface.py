@@ -113,9 +113,13 @@ class Interface:
         # Continue by default
         return True
 
-    @staticmethod
-    def cleared_event() -> None:
-        print(f"Grid cleared!")
+    def event_grid_cleared(self) -> None:
+        # This method isn't static as it may be used for more complex functionality later
+        print(f"\nGrid cleared!")
+
+    def event_quit(self) -> None:
+        # This method isn't static as it may be used for more complex functionality later
+        print(f"\nQuitting game.")
 
 
 if __name__ == "__main__":

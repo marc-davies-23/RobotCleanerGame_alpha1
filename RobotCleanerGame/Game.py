@@ -146,10 +146,10 @@ class Game:
             go = self.interface.process_action(action)
 
             if self.is_grid_cleared():
-                self.interface.cleared_event()
+                self.interface.event_grid_cleared()
         else:
             # This catches 'go' turning to False, which should be a Quit action
-            print(f"Quitting game.")
+            self.interface.event_quit()
 
 
 if __name__ == "__main__":

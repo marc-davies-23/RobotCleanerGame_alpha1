@@ -10,6 +10,8 @@ from Tokens import *
 
 EMPTY_TILE = "."
 
+DEFAULT_GRID_SIZE = 3
+
 
 class Tile:
     def __init__(self) -> None:
@@ -45,7 +47,7 @@ class Tile:
 
 
 class Grid:
-    def __init__(self, x: int = 3, y: int = 3) -> None:
+    def __init__(self, x: int = DEFAULT_GRID_SIZE, y: int = DEFAULT_GRID_SIZE) -> None:
         self.grid = []
         self.size_x = x
         self.size_y = y
