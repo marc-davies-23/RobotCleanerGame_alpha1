@@ -6,17 +6,29 @@
     Game.robot: object of the Robot class
 
 """
-import RobotCleanerGame as rCG
+
+from RobotCleanerGame import *
+
+DEFAULT_SIZE_X = 3
+DEFAULT_SIZE_Y = 3
 
 
 class Game:
-    def __init__(self, size_x: int, size_y: int, robot_start=None, interface=None, history=None):
+    """
+        The game has a grid, which holds most of the current game state; the robot is the player's agent.
+
+        The Interface class defines display & control input; the base Interface class is a console mode.
+
+        History will be useful for retracing games; a necessity for advanced functions, e.g. ML
+    """
+    def __init__(self, size_x: int = DEFAULT_SIZE_X, size_y: int = DEFAULT_SIZE_Y,
+                 robot_start: (int, int | None) = None, interface=None, history=None) -> None:
         self.grid = None
         self.robot = None
         self.initialise_grid(size_x, size_y, robot_start)
 
         if interface is None:
-            self.interface = rCG.Interface(game=self)
+            self.interface = Interface(game=self)
         else:
             self.interface = interface
 
@@ -25,15 +37,15 @@ class Game:
         else:
             self.history = history
 
-    def initialise_grid(self, size_x: int, size_y: int, robot_start=None):
+    def initialise_grid(self, size_x: int, size_y: int, robot_start: (int, int | None) = None) -> None:
         # Separate method so that games may be re-initialised
-        self.grid = rCG.Grid(size_x, size_y)
-        self.robot = rCG.Robot(start=robot_start)
+        self.grid = Grid(size_x, size_y)
+        self.robot = Robot(start=robot_start)
 
-        self.grid.set_tile(self.robot.coords, rCG.ROBOT_TOKEN)
+        self.grid.set_tile(self.robot.coords, ROBOT_TOKEN)
 
-    def add_token(self, coords: (int, int), token_symbol):
-        if not (token_symbol in rCG.SET_OF_ITEMS | rCG.SET_OF_BINS | rCG.SET_OF_MESS):
+    def add_token(self, coords: (int, int), token_symbol) -> None:
+        if not (token_symbol in SET_OF_ITEMS | SET_OF_BINS | SET_OF_MESS):
             raise ValueError(f"Game.add_token: token_symbol not valid")
 
         if not self.grid.get_tile(coords).is_empty():
@@ -41,7 +53,7 @@ class Game:
 
         self.grid.set_tile(coords, token_symbol)
 
-    def get_possible_actions(self):
+    def get_possible_actions(self) -> [Action]:
         actions = []
 
         for coord in self.grid.get_adjacent_coordinates(self.robot.coords):
@@ -50,22 +62,22 @@ class Game:
 
             if tile.is_empty():
                 # Can move or drop into an empty co-ord
-                actions.append(rCG.Move(coord))
+                actions.append(Move(coord))
                 if not self.robot.is_stack_empty():
-                    actions.append(rCG.Drop(coord))
+                    actions.append(Drop(coord))
             elif tile.is_bin():
                 # Can -- potentially -- drop an item into a bin
                 if not self.robot.is_stack_empty():
-                    actions.append(rCG.Drop(coord))
+                    actions.append(Drop(coord))
             elif tile.is_item():
                 # Can pick up an item
-                actions.append(rCG.PickUp(coord))
+                actions.append(PickUp(coord))
             elif tile.is_mess():
-                actions.append(rCG.Sweep(coord))
+                actions.append(Sweep(coord))
 
         return actions
 
-    def apply_drop(self, drop: rCG.Drop) -> bool:
+    def apply_drop(self, drop: Drop) -> bool:
         # Boolean return indicates whether item successfully dropped or not
         # First, pop the item; if we find nothing, exit
         if not (item := self.robot.drop()):
@@ -79,7 +91,7 @@ class Game:
             return True
 
         # If we get to here we're dealing with bin tiles
-        if tile.content() in rCG.ITEMS_TO_BIN_MAP[item]:
+        if tile.content() in ITEMS_TO_BIN_MAP[item]:
             # Accepted bin; we don't need to set the item here, it is "destroyed"
             return True
         else:
@@ -87,13 +99,13 @@ class Game:
             self.robot.pickup(item)
             return False
 
-    def apply_move(self, move: rCG.Move):
+    def apply_move(self, move: Move) -> None:
         self.grid.get_tile(self.robot.coords).clear()
 
-        self.grid.set_tile(move.coords, rCG.ROBOT_TOKEN)
+        self.grid.set_tile(move.coords, ROBOT_TOKEN)
         self.robot.coords = move.coords
 
-    def apply_pickup(self, pickup: rCG.PickUp):
+    def apply_pickup(self, pickup: PickUp) -> None:
         tile = self.grid.get_tile(pickup.coords)
         if not tile.is_item():
             raise ValueError("Game.apply_pickup: wrong token type")
@@ -101,7 +113,7 @@ class Game:
         if self.robot.pickup(tile.content()):
             tile.clear()
 
-    def apply_sweep(self, sweep: rCG.Sweep):
+    def apply_sweep(self, sweep: Sweep) -> None:
         tile = self.grid.get_tile(sweep.coords)
         if tile.is_mess():
             tile.clear()
@@ -114,13 +126,13 @@ class Game:
         # Now check the grid; this is slower
         for j in self.grid.grid:
             for i in j:
-                if not (i.content() in {rCG.EMPTY_TILE, rCG.ROBOT_TOKEN} | rCG.SET_OF_BINS):
+                if not (i.content() in {EMPTY_TILE, ROBOT_TOKEN} | SET_OF_BINS):
                     return False
 
         # If we get here then the grid is cleared
         return True
 
-    def start_control_loop(self):
+    def start_control_loop(self) -> None:
         if self.interface is None:
             raise Exception("Game.start_control_loop: No Interface set")
 
@@ -134,8 +146,12 @@ class Game:
             go = self.interface.process_action(action)
 
             if self.is_grid_cleared():
-                print(f"Game Over!")
+                self.interface.cleared_event()
+        else:
+            # This catches 'go' turning to False, which should be a Quit action
+            print(f"Quitting game.")
 
 
 if __name__ == "__main__":
-    pass
+    g = Game()
+    print(g.grid)

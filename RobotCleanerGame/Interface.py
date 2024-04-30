@@ -3,15 +3,18 @@
     This class is the generic console interface between player & program
 
 """
-import RobotCleanerGame as rCG
+
+from Actions import *
+from Game import *
+
 import string
 
 
 class Interface:
-    def __init__(self, game: rCG.Game):
+    def __init__(self, game) -> None:
         self.game = game
 
-    def show_current_state(self):
+    def show_current_state(self) -> None:
         if self.game.grid:
             print(self.game.grid)
         else:
@@ -33,7 +36,7 @@ class Interface:
             print(f"Robot not initialised")
 
     @staticmethod
-    def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True):
+    def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True) -> str:
         if validation_values is None:
             validation_values = []
 
@@ -54,7 +57,7 @@ class Interface:
             except ValueError:
                 print("Value error, please try again.\n")
 
-    def action_list_feedback(self) -> rCG.Action:
+    def action_list_feedback(self) -> Action:
         lookup = {}
 
         print(f"Please select an action:")
@@ -62,13 +65,13 @@ class Interface:
             disp_count = count + 1
             print(f"{disp_count} : ", end="")
             match a.__class__.__name__:
-                case rCG.Drop.__name__:
+                case Drop.__name__:
                     print(f"drop to {a.coords}")
-                case rCG.Move.__name__:
+                case Move.__name__:
                     print(f"move to {a.coords}")
-                case rCG.PickUp.__name__:
+                case PickUp.__name__:
                     print(f"pick-up from {a.coords}")
-                case rCG.Sweep.__name__:
+                case Sweep.__name__:
                     print(f"sweep {a.coords}")
                 case _:
                     raise ValueError(f"Interface.action_list_feedback: {a.__class__.__name__} not matched")
@@ -77,11 +80,11 @@ class Interface:
 
         # Refresh command
         print(f"R : Refresh")
-        lookup["r"] = rCG.Refresh()
+        lookup["r"] = Refresh()
 
         # Quit command
         print(f"Q : Quit")
-        lookup["q"] = rCG.Quit()
+        lookup["q"] = Quit()
 
         selected = self.request_input("\nSelect action: ", validation_values=list(lookup.keys()))
 
@@ -91,24 +94,28 @@ class Interface:
         # Boolean return determines whether the action is a stopper or not; False = stop
         self.game.history.append(action)
         match action.__class__.__name__:
-            case rCG.Drop.__name__:
+            case Drop.__name__:
                 if not self.game.apply_drop(action):
                     print("Drop failed!")
-            case rCG.Move.__name__:
+            case Move.__name__:
                 self.game.apply_move(action)
-            case rCG.PickUp.__name__:
+            case PickUp.__name__:
                 self.game.apply_pickup(action)
-            case rCG.Refresh.__name__:
+            case Refresh.__name__:
                 self.show_current_state()
-            case rCG.Sweep.__name__:
+            case Sweep.__name__:
                 self.game.apply_sweep(action)
-            case rCG.Quit.__name__:
+            case Quit.__name__:
                 return False  # Don't continue
             case _:
                 raise ValueError(f"Interface.process_action: {action.__class__.__name__} not matched")
 
         # Continue by default
         return True
+
+    @staticmethod
+    def cleared_event() -> None:
+        print(f"Grid cleared!")
 
 
 if __name__ == "__main__":

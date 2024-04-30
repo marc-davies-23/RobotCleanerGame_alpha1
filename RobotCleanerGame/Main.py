@@ -1,7 +1,7 @@
-import RobotCleanerGame as rCG
+from Game import Game
 
 if __name__ == "__main__":
-    g = rCG.Game(3, 3, robot_start=(2, 1))
+    g = Game(3, 3, robot_start=(2, 1))
 
     g.add_token((0, 0), "*")  # Universal bin
     g.add_token((1, 0), "R")  # Red bin

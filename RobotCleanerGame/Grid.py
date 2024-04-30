@@ -3,46 +3,49 @@
     Defines the classes for grid & tiles on which the game is played
 
 """
-import RobotCleanerGame as rCG
+
+from Actions import MOVE_LIST
+from Game import *
+from Tokens import *
 
 EMPTY_TILE = "."
 
 
 class Tile:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__content = EMPTY_TILE
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__content
 
-    def is_bin(self):
-        return self.__content in rCG.SET_OF_BINS
+    def is_bin(self) -> bool:
+        return self.__content in SET_OF_BINS
 
-    def is_empty(self):
+    def is_empty(self) -> bool:
         return self.__content == EMPTY_TILE
 
-    def is_item(self):
-        return self.__content in rCG.SET_OF_ITEMS
+    def is_item(self) -> bool:
+        return self.__content in SET_OF_ITEMS
 
-    def is_mess(self):
-        return self.__content in rCG.SET_OF_MESS
+    def is_mess(self) -> bool:
+        return self.__content in SET_OF_MESS
 
-    def content(self):
+    def content(self) -> str:
         return self.__content
 
-    def set(self, new_content):
+    def set(self, new_content) -> bool:
         if self.is_empty():
             self.__content = new_content
             return True  # OK
         else:
             return False  # Not OK
 
-    def clear(self):
+    def clear(self) -> None:
         self.__content = EMPTY_TILE
 
 
 class Grid:
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int = 3, y: int = 3) -> None:
         self.grid = []
         self.size_x = x
         self.size_y = y
@@ -53,7 +56,7 @@ class Grid:
                 row.append(tile)
             self.grid.append(row)
 
-    def __str__(self):
+    def __str__(self) -> str:
         out = ""
         for j in self.grid:
             for i in j:
@@ -62,13 +65,13 @@ class Grid:
 
         return out
 
-    def get_tile(self, coordinates: (int, int)):
+    def get_tile(self, coordinates: (int, int)) -> Tile:
         return self.grid[coordinates[1]][coordinates[0]]
 
-    def get_adjacent_coordinates(self, from_cds: (int, int)):
+    def get_adjacent_coordinates(self, from_cds: (int, int)) -> [(int, int)]:
         adjacent_coordinates = []
 
-        for move in rCG.MOVE_LIST:
+        for move in MOVE_LIST:
             x = from_cds[0] + move[0]
             if x < 0 or x >= self.size_x:
                 continue
@@ -86,4 +89,4 @@ class Grid:
 
 
 if __name__ == "__main__":
-    pass
+    print(grid := Grid())
