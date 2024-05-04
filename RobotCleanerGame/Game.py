@@ -27,10 +27,7 @@ class Game:
         self.robot = None
         self.initialise_grid(size_x, size_y, robot_start)
 
-        if interface is None:
-            self.interface = Interface(game=self)
-        else:
-            self.interface = interface
+        self.interface = interface
 
         if history is None:
             self.history = []
@@ -141,8 +138,9 @@ class Game:
         while go:
             self.interface.show_current_state()
 
-            action = self.interface.action_list_feedback()
+            action = self.interface.choose_action()
 
+            # If processing the action returns False,this stops the current While loop
             go = self.interface.process_action(action)
 
             if self.is_grid_cleared():

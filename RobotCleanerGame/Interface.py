@@ -58,7 +58,7 @@ class Interface:
             except ValueError:
                 print("Value error, please try again.\n")
 
-    def action_list_feedback(self) -> Action:
+    def choose_action(self) -> Action:
         lookup = {}
 
         print(f"Please select an action:")
@@ -116,7 +116,7 @@ class Interface:
 
     def event_grid_cleared(self) -> None:
         # This method isn't static as it may be used for more complex functionality later
-        print(f"\nGrid cleared!")
+        print(f"\nGRID CLEARED!\n")
 
     def event_quit(self) -> None:
         # This method isn't static as it may be used for more complex functionality later

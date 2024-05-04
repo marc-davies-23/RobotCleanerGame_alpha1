@@ -11,33 +11,41 @@ MOVE_LIST = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 class Action:
     """
         For now the base Action class is essentially an abstract class, and a placeholder for further functionality
-        as necessary.
+        as necessary. The class is given coords of None here to signal that it is an action not reliant on the grid;
+        some subclasses will overwrite this to make functional use of coords
+    """
+
+    def __init__(self) -> None:
+        self.coords = None
+
+
+class ActionWithCoords:
+    """
+        Second abstract class; this is an action with coords
+    """
+    def __init__(self, coords: (int, int)) -> None:
+        self.coords = coords
+
+
+class Drop(ActionWithCoords):
+    """
+        Action for the Robot to drop the top of its stack
     """
     pass
 
 
-class Drop(Action):
-    """
-        Action for the Robot to drop the top of its stack
-    """
-    def __init__(self, coords: (int, int)) -> None:
-        self.coords = coords
-
-
-class Move(Action):
+class Move(ActionWithCoords):
     """
         Action for the Robot to move to coords
     """
-    def __init__(self, coords: (int, int)) -> None:
-        self.coords = coords
+    pass
 
 
-class PickUp(Action):
+class PickUp(ActionWithCoords):
     """
         Action for Robot to try to pick up something from coords
     """
-    def __init__(self, coords: (int, int)) -> None:
-        self.coords = coords
+    pass
 
 
 class Quit(Action):
@@ -54,12 +62,11 @@ class Refresh(Action):
     pass
 
 
-class Sweep(Action):
+class Sweep(ActionWithCoords):
     """
         Action to Sweep something from board
     """
-    def __init__(self, coords: (int, int)) -> None:
-        self.coords = coords
+    pass
 
 
 if __name__ == "__main__":

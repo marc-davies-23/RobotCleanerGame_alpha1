@@ -43,8 +43,7 @@ def build_game_from_buffer(buffer: [str]) -> Game:
 
 
 def build_game_from_file(file_path) -> Game:
-    buffer = read_file_to_buffer(file_path)
-    return build_game_from_buffer(buffer)
+    return build_game_from_buffer(read_file_to_buffer(file_path))
 
 
 if __name__ == "__main__":
