@@ -88,7 +88,7 @@ class PyGameToken:
         for file in files:
             self.images.append(pygame.image.load(folder + file))
 
-    def get_current_image(self) -> None:
+    def get_current_image(self) -> pygame.Surface:
         return self.images[self.anim_idx]
 
     def increment_idx(self) -> None:
