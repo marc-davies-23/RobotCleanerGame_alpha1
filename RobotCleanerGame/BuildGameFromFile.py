@@ -6,7 +6,13 @@
 from Game import Game
 
 
-def read_file_to_buffer(file_path) -> [str]:
+def read_file_to_buffer(file_path: str) -> [str]:
+    """
+    Function to read the input file and turn it into a buffer, stripping carriage returns and line breaks.
+
+    :param file_path: File path in string format
+    :return: Buffer as list of strings
+    """
     buffer = []
     with open(file_path, "r") as file:
         for line in file:
@@ -18,14 +24,18 @@ def read_file_to_buffer(file_path) -> [str]:
 
 def build_game_from_buffer(buffer: [str]) -> Game:
     """
-        Breaks up the buffer into actionable parts.
+    Breaks up the buffer into actionable parts.
 
-        The first line of the buffer should consist of four numbers:
-        sizeX (of grid), sizeY (of grid), X coords (of robot), Y coords (of robot)
+    The first line of the buffer should consist of four numbers: sizeX (of grid), sizeY (of grid),
+    X coords (of robot), Y coords (of robot)
 
-        Each line onwards consists of a format like so:
-        T(x,y)
-        where T is a token type, and x, y are its coords.
+    Each line onwards consists of a format like so:
+    T(x,y)
+
+    where T is a token type, and x, y are its coords.
+
+    :param buffer: Input buffer (list of strings)
+    :return: RobotCleanerGame.Game object
     """
     line1 = buffer[0].split(",")
 
@@ -42,7 +52,12 @@ def build_game_from_buffer(buffer: [str]) -> Game:
     return g
 
 
-def build_game_from_file(file_path) -> Game:
+def build_game_from_file(file_path: str) -> Game:
+    """
+    Combines functions to build a game from a file path reference.
+    :param file_path: File path string
+    :return: RobotCleanerGame.Game object
+    """
     return build_game_from_buffer(read_file_to_buffer(file_path))
 
 
