@@ -42,10 +42,6 @@ WIN_CAPTION = "RobotCleanerGame"
 
 
 class InterfacePyGame(Interface):
-    pass
-
-
-class PyGameControls:
     def __init__(self, game: Game, win_width: int = WIN_WIDTH, win_height: int = WIN_HEIGHT) -> None:
         self.game = game
         self.win_width = win_width

@@ -36,28 +36,6 @@ class Interface:
         else:
             print(f"Robot not initialised")
 
-    @staticmethod
-    def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True) -> str:
-        if validation_values is None:
-            validation_values = []
-
-        while True:
-
-            try:
-                received = input(prompt)
-
-                if convert_to_int and received in string.digits:
-                    received = int(received)
-                elif convert_to_lowercase and not (received in string.digits):
-                    received = received.lower()
-
-                if received in validation_values or not validation_values:
-                    return received
-                else:
-                    print("Value not accepted, please try again.\n")
-            except ValueError:
-                print("Value error, please try again.\n")
-
     def choose_action(self) -> Action:
         lookup = {}
 
@@ -87,7 +65,7 @@ class Interface:
         print(f"Q : Quit")
         lookup["q"] = Quit()
 
-        selected = self.request_input("\nSelect action: ", validation_values=list(lookup.keys()))
+        selected = request_input("\nSelect action: ", validation_values=list(lookup.keys()))
 
         return lookup[selected]
 
@@ -121,6 +99,27 @@ class Interface:
     def event_quit(self) -> None:
         # This method isn't static as it may be used for more complex functionality later
         print(f"\nQuitting game.")
+
+
+def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True) -> str:
+    if validation_values is None:
+        validation_values = []
+
+    while True:
+        try:
+            received = input(prompt)
+
+            if convert_to_int and received in string.digits:
+                received = int(received)
+            elif convert_to_lowercase and not (received in string.digits):
+                received = received.lower()
+
+            if received in validation_values or not validation_values:
+                return received
+            else:
+                print("Value not accepted, please try again.\n")
+        except ValueError:
+            print("Value error, please try again.\n")
 
 
 if __name__ == "__main__":
