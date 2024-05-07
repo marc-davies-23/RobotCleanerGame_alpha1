@@ -1,9 +1,11 @@
 from BuildGameFromFile import *
-from InterfaceFromFile import *
+from InterfacePyGame import *
 
 if __name__ == "__main__":
     g = build_game_from_file("../GameFiles/SetPieces/Game1/game.rcgg")
 
-    g.interface = InterfaceFromFile(g, "../GameFiles/SetPieces/Game1/solve.rcgs")
+    g.interface = InterfacePyGame(g)
 
-    g.start_control_loop()
+    pygc = PyGameControls(g)
+
+    pygc.execute()

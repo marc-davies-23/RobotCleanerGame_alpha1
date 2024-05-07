@@ -20,11 +20,11 @@ class Interface:
         else:
             print(f"Grid not initialised")
 
-        if self.game.robot:
-            if self.game.robot.stack:
+        if self.game.robot_img:
+            if self.game.robot_img.stack:
                 print(f"Stack > ", end="")
-                max_idx = len(self.game.robot.stack) - 1
-                for index, item in enumerate(self.game.robot.stack):
+                max_idx = len(self.game.robot_img.stack) - 1
+                for index, item in enumerate(self.game.robot_img.stack):
                     if index == max_idx:
                         end = "\n"
                     else:
