@@ -6,6 +6,4 @@ if __name__ == "__main__":
 
     g.interface = InterfacePyGame(g)
 
-    pygc = InterfacePyGame(g)
-
-    pygc.execute()
+    g.start()

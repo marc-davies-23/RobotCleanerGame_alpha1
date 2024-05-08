@@ -195,7 +195,7 @@ class Game:
         # If we get here then the grid is cleared
         return True
 
-    def start_control_loop(self) -> None:
+    def start(self) -> None:
         """
         The game's control loop.
 
@@ -207,10 +207,20 @@ class Game:
 
         go = True
 
-        while go:
-            self.interface.show_current_state()
+        # One-off events at the start, e.g. title screen
+        self.interface.event_start()
 
-            action = self.interface.choose_action()
+        while go:
+            # Stuff that happens at the start of a loop pass, but isn't strictly related to display of the state
+            self.interface.event_begin_of_loop()
+
+            self.interface.display_state()
+
+            action = self.interface.listen_for_action()
+
+            # Skip this pass if Action is None
+            if action is None:
+                continue
 
             # If processing the action returns False,this stops the current While loop
             go = self.interface.process_action(action)

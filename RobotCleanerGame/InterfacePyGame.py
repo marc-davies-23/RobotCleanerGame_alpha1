@@ -3,14 +3,15 @@
 """
 import pygame
 
-from Game import Game
+from Game import *
 from Interface import Interface
+from RobotCleanerGame import Action
 
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 
 DELAY_ONE_SEC = 1000
-DELAY_REGULAR = 500
+DELAY_REGULAR = 50
 
 FILE_TILE = "TILE_64x64.png"
 
@@ -25,7 +26,7 @@ FILES_BLUE_ITEM = ["BLUE_ITEM_64x64L.png", "BLUE_ITEM_64x64R.png"]
 FILES_GREEN_ITEM = ["GREEN_ITEM_64x64L.png", "GREEN_ITEM_64x64R.png"]
 FILES_RED_ITEM = ["RED_ITEM_64x64L.png", "RED_ITEM_64x64R.png"]
 
-FILES_MESS = ["MESS_64x64L.png", "MESS_64x64R"]
+FILES_MESS = ["MESS_64x64L.png", "MESS_64x64R.png"]
 
 FONT_COURIER_NEW = "couriernew"
 
@@ -36,14 +37,14 @@ TILE_SIZE = 64
 
 TITLE_STRING = "RobotCleanerGame v.0.0.a"
 
-WIN_WIDTH = 800
-WIN_HEIGHT = 600
+WIN_WIDTH = TILE_SIZE * 12
+WIN_HEIGHT = TILE_SIZE * 11
 WIN_CAPTION = "RobotCleanerGame"
 
 
 class InterfacePyGame(Interface):
     def __init__(self, game: Game, win_width: int = WIN_WIDTH, win_height: int = WIN_HEIGHT) -> None:
-        self.game = game
+        super().__init__(game)
         self.win_width = win_width
         self.win_height = win_height
 
@@ -51,6 +52,8 @@ class InterfacePyGame(Interface):
         pygame.display.set_caption(WIN_CAPTION)
 
         self.window = pygame.display.set_mode((win_width, win_height))
+
+        self.animation_beat = 0
 
         # Background tile
         self.tile_img = pygame.image.load(PATH_TOKENS_64 + FILE_TILE)
@@ -74,31 +77,54 @@ class InterfacePyGame(Interface):
     def draw_background_tile(self, x: int, y: int) -> None:
         self.window.blit(self.tile_img, (x, y))
 
-    def execute(self) -> None:
-
+    def event_start(self) -> None:
         self.title_screen()
 
-        run = True
+    def event_begin_of_loop(self) -> None:
+        pygame.time.delay(DELAY_REGULAR)
 
-        robot_token = PyGameToken(PATH_TOKENS_64, FILES_ROBOT)
-
-        while run:
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-
-            key = pygame.key.get_pressed()
-
-            self.draw_background_tile(200, 200)
-            robot_token.draw(self.window, 200, 200)
-
-            pygame.display.update()
-
-            pygame.time.delay(DELAY_REGULAR)
-            self.window.fill(COLOR_BLACK)
-
+    def event_quit(self) -> None:
         pygame.quit()
+
+    def beat(self) -> bool:
+        return self.animation_beat == 0
+
+    def display_state(self) -> None:
+        # Animation Beat
+        self.animation_beat = (self.animation_beat + 1) % 10
+
+        # Clear the window first
+        self.window.fill(COLOR_BLACK)
+
+        for y in range(0, self.game.grid.size_y):
+            for x in range(0, self.game.grid.size_x):
+
+                tile = self.game.grid.get_tile((x, y))
+                self.draw_background_tile(x * TILE_SIZE, y * TILE_SIZE)
+
+                if tile.is_empty():
+                    # Do next
+                    continue
+
+                TOKEN_MAP[tile.get_content()].draw(self.window, x * TILE_SIZE, y * TILE_SIZE, increment=self.beat())
+
+        pygame.display.update()
+
+    def listen_for_action(self) -> (Action | None):
+        for event in pygame.event.get():
+            match event.type:
+                case pygame.QUIT:
+                    return Quit()
+                case pygame.MOUSEBUTTONDOWN:
+                    print(f"mouse start: {pygame.mouse.get_pos()}")
+                case pygame.MOUSEBUTTONUP:
+                    print(f"mouse end: {pygame.mouse.get_pos()}")
+                case _:
+                    pass
+
+        # key = pygame.key.get_pressed()
+
+        return None
 
 
 class PyGameToken:
@@ -133,6 +159,18 @@ class PyGameToken:
         if increment:
             self.increment_idx()
 
+
+TOKEN_MAP: dict[str, PyGameToken] = {
+    "r": PyGameToken(PATH_TOKENS_64, FILES_RED_ITEM),
+    "g": PyGameToken(PATH_TOKENS_64, FILES_GREEN_ITEM),
+    "b": PyGameToken(PATH_TOKENS_64, FILES_BLUE_ITEM),
+    "R": PyGameToken(PATH_TOKENS_64, FILES_RED_BIN),
+    "G": PyGameToken(PATH_TOKENS_64, FILES_GREEN_BIN),
+    "B": PyGameToken(PATH_TOKENS_64, FILES_BLUE_BIN),
+    "*": PyGameToken(PATH_TOKENS_64, FILES_UNIVERSAL_BIN),
+    "m": PyGameToken(PATH_TOKENS_64, FILES_MESS),
+    ROBOT_TOKEN: PyGameToken(PATH_TOKENS_64, FILES_ROBOT),
+}
 
 if __name__ == "__main__":
     """pygc = PyGameControls()

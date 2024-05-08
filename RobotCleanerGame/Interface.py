@@ -4,7 +4,6 @@
 
 """
 
-from Actions import *
 from Game import *
 
 import string
@@ -14,7 +13,7 @@ class Interface:
     def __init__(self, game) -> None:
         self.game = game
 
-    def show_current_state(self) -> None:
+    def display_state(self) -> None:
         if self.game.grid:
             print(self.game.grid)
         else:
@@ -36,7 +35,8 @@ class Interface:
         else:
             print(f"Robot not initialised")
 
-    def choose_action(self) -> Action:
+    def listen_for_action(self) -> (Action | None):
+        # Child Interfaces may return None to skip a pass in their control loop
         lookup = {}
 
         print(f"Please select an action:")
@@ -69,19 +69,23 @@ class Interface:
 
         return lookup[selected]
 
+    def give_user_feedback(self, feedback: str):
+        # Might need to be an instance class with inheritance
+        print(feedback)
+
     def process_action(self, action) -> bool:
         # Boolean return determines whether the action is a stopper or not; False = stop
         self.game.history.append(action)
         match action.__class__.__name__:
             case Drop.__name__:
                 if not self.game.apply_drop(action):
-                    print("Drop failed!")
+                    self.give_user_feedback("Drop failed!")
             case Move.__name__:
                 self.game.apply_move(action)
             case PickUp.__name__:
                 self.game.apply_pickup(action)
             case Refresh.__name__:
-                self.show_current_state()
+                self.display_state()
             case Sweep.__name__:
                 self.game.apply_sweep(action)
             case Quit.__name__:
@@ -92,13 +96,19 @@ class Interface:
         # Continue by default
         return True
 
+    def event_start(self) -> None:
+        pass
+
+    def event_begin_of_loop(self) -> None:
+        pass
+
     def event_grid_cleared(self) -> None:
-        # This method isn't static as it may be used for more complex functionality later
-        print(f"\nGRID CLEARED!\n")
+        # This method isn't static as it may be used for more complex functionality via inheritance
+        self.give_user_feedback(f"\nGRID CLEARED!\n")
 
     def event_quit(self) -> None:
-        # This method isn't static as it may be used for more complex functionality later
-        print(f"\nQuitting game.")
+        # This method isn't static as it may be used for more complex functionality via inheritance
+        self.give_user_feedback(f"\nQuitting game.")
 
 
 def request_input(prompt: str, validation_values=None, convert_to_int=True, convert_to_lowercase=True) -> str:

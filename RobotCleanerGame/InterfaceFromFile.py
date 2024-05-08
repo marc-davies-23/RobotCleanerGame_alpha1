@@ -32,7 +32,7 @@ class InterfaceFromFile(Interface):
         cds = input_string.replace(")", "").split(",")
         return int(cds[0]), int(cds[1])
 
-    def choose_action(self) -> Action:
+    def listen_for_action(self) -> Action:
         # Simply return the front item from the action list; if the list is empty, print warning and Quit
         try:
             return self.__actionList.pop(0)
