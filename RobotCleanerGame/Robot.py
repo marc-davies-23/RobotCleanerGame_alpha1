@@ -36,7 +36,7 @@ class Robot:
         if len(self.stack) > 0:
             return self.stack.pop()  # OK
         else:
-            return False  # Not OK
+            return None  # Not OK
 
     def is_stack_empty(self):
         return self.stack == []

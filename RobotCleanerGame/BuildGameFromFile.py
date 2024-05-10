@@ -4,6 +4,7 @@
 
 """
 from Game import Game
+from Interface import Interface
 
 
 def read_file_to_buffer(file_path: str) -> [str]:
@@ -62,4 +63,6 @@ def build_game_from_file(file_path: str) -> Game:
 
 
 if __name__ == "__main__":
-    pass
+    g = build_game_from_file("../GameFiles/SetPieces/Game1/game.rcgg")
+    g.interface = Interface(g)
+    print(g.grid)

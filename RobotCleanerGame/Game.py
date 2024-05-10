@@ -7,7 +7,7 @@
 
 """
 
-from Actions import *
+from Actions import *  # Needed mostly for type-hinting
 from Grid import *
 from Robot import *
 
@@ -23,6 +23,7 @@ class Game:
 
         History will be useful for retracing games; a necessity for advanced functions, e.g. ML
     """
+
     def __init__(self, size_x: int = DEFAULT_SIZE_X, size_y: int = DEFAULT_SIZE_Y,
                  robot_start: (int, int | None) = None, interface=None, history=None) -> None:
         """
@@ -107,6 +108,15 @@ class Game:
 
         return actions
 
+    @staticmethod
+    def is_action_type_in_actions(action: Action, actions: [Action]) -> bool:
+        # Not the most efficient of algorithms but there shouldn't be too many actions
+        for a in actions:
+            if a.__class__.__name__ == action.__name__:
+                return True
+
+        return False
+
     def apply_drop(self, drop: Drop) -> bool:
         """
         Apply a Drop Action, if possible.
@@ -142,10 +152,14 @@ class Game:
 
         :param move: Move Action
         """
+        # First, double-check that the destination is empty. Throw an error if not
+        if not self.grid.get_tile(move.coords).is_empty():
+            raise ValueError("Game.apply_move: destination not empty")
+
         # Clear the old coordinates
         self.grid.get_tile(self.robot.coords).clear()
 
-        # Set the new coordiantes
+        # Set the new coordinates
         self.grid.set_tile(move.coords, ROBOT_TOKEN)
         self.robot.coords = move.coords
 

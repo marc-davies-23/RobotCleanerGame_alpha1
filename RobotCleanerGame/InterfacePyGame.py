@@ -7,6 +7,8 @@ from Game import *
 from Interface import Interface
 from RobotCleanerGame import Action
 
+BUTTON_WIDTH = 128
+
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
 
@@ -33,6 +35,7 @@ FONT_COURIER_NEW = "couriernew"
 PATH_TOKENS_BIG = "../GameFiles/Assets/Images/Tokens_Original/"
 PATH_TOKENS_64 = "../GameFiles/Assets/Images/Tokens_Play/"
 
+TILE_IMG = pygame.image.load(PATH_TOKENS_64 + FILE_TILE)
 TILE_SIZE = 64
 
 TITLE_STRING = "RobotCleanerGame v.0.0.a"
@@ -41,10 +44,21 @@ WIN_WIDTH = TILE_SIZE * 12
 WIN_HEIGHT = TILE_SIZE * 11
 WIN_CAPTION = "RobotCleanerGame"
 
+B_DROP_P = pygame.image.load(PATH_TOKENS_64 + "B_DROP_PRESSED.png")
+B_DROP_U = pygame.image.load(PATH_TOKENS_64 + "B_DROP_UNPRESSED.png")
+B_MOVE_P = pygame.image.load(PATH_TOKENS_64 + "B_MOVE_PRESSED.png")
+B_MOVE_U = pygame.image.load(PATH_TOKENS_64 + "B_MOVE_UNPRESSED.png")
+B_PICK_P = pygame.image.load(PATH_TOKENS_64 + "B_PICKUP_PRESSED.png")
+B_PICK_U = pygame.image.load(PATH_TOKENS_64 + "B_PICKUP_UNPRESSED.png")
+B_SWEP_P = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_PRESSED.png")
+B_SWEP_U = pygame.image.load(PATH_TOKENS_64 + "B_SWEEP_UNPRESSED.png")
+B_UNAVAL = pygame.image.load(PATH_TOKENS_64 + "BUTTON_UNAVAILABLE.png")
+
 
 class InterfacePyGame(Interface):
     def __init__(self, game: Game, win_width: int = WIN_WIDTH, win_height: int = WIN_HEIGHT) -> None:
         super().__init__(game)
+        self.state = {"pressed_button": None}
         self.win_width = win_width
         self.win_height = win_height
 
@@ -54,9 +68,6 @@ class InterfacePyGame(Interface):
         self.window = pygame.display.set_mode((win_width, win_height))
 
         self.animation_beat = 0
-
-        # Background tile
-        self.tile_img = pygame.image.load(PATH_TOKENS_64 + FILE_TILE)
 
     def title_screen(self, title_size=32, color=COLOR_WHITE, x=200, y=100) -> None:
         self.window.fill(COLOR_BLACK)
@@ -75,7 +86,36 @@ class InterfacePyGame(Interface):
         self.window.fill(COLOR_BLACK)
 
     def draw_background_tile(self, x: int, y: int) -> None:
-        self.window.blit(self.tile_img, (x, y))
+        self.window.blit(TILE_IMG, (x, y))
+
+    def draw_menu(self):
+        x = 0
+        y = self.win_height - TILE_SIZE
+
+        actions = self.game.get_possible_actions()
+
+        avail = Game.is_action_type_in_actions(Move, actions)
+        self.draw_menu_button(avail, "M", B_MOVE_P, B_MOVE_U, x, y)
+
+        x += BUTTON_WIDTH
+        avail = Game.is_action_type_in_actions(PickUp, actions)
+        self.draw_menu_button(avail, "P", B_PICK_P, B_PICK_U, x, y)
+
+        x += BUTTON_WIDTH
+        avail = Game.is_action_type_in_actions(Drop, actions)
+        self.draw_menu_button(avail, "D", B_DROP_P, B_DROP_U, x, y)
+
+        x += BUTTON_WIDTH
+        avail = Game.is_action_type_in_actions(Sweep, actions)
+        self.draw_menu_button(avail, "S", B_SWEP_P, B_SWEP_U, x, y)
+
+    def draw_menu_button(self, available, state_flag, image_pressed, image_unpressed, x, y) -> None:
+        if not available:
+            self.window.blit(B_UNAVAL, (x, y))
+        elif self.state["pressed_button"] == state_flag:
+            self.window.blit(image_pressed, (x, y))
+        else:
+            self.window.blit(image_unpressed, (x, y))
 
     def event_start(self) -> None:
         self.title_screen()
@@ -87,14 +127,18 @@ class InterfacePyGame(Interface):
         pygame.quit()
 
     def beat(self) -> bool:
+        # Are we on an animation beat?
         return self.animation_beat == 0
 
     def display_state(self) -> None:
-        # Animation Beat
+        # Default animation beats are hit once every ten loops
         self.animation_beat = (self.animation_beat + 1) % 10
 
         # Clear the window first
         self.window.fill(COLOR_BLACK)
+
+        # Buttons of Menu
+        self.draw_menu()
 
         for y in range(0, self.game.grid.size_y):
             for x in range(0, self.game.grid.size_x):
@@ -103,7 +147,7 @@ class InterfacePyGame(Interface):
                 self.draw_background_tile(x * TILE_SIZE, y * TILE_SIZE)
 
                 if tile.is_empty():
-                    # Do next
+                    # Go to next
                     continue
 
                 TOKEN_MAP[tile.get_content()].draw(self.window, x * TILE_SIZE, y * TILE_SIZE, increment=self.beat())
