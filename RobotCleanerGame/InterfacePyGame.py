@@ -41,8 +41,9 @@ TILE_SIZE = 64
 
 TITLE_STRING = "RobotCleanerGame v.0.0.a"
 
+FEEDBACK_TEXT_BOX_HEIGHT = 20
 WIN_WIDTH = TILE_SIZE * 12
-WIN_HEIGHT = TILE_SIZE * 11
+WIN_HEIGHT = TILE_SIZE * 11 + FEEDBACK_TEXT_BOX_HEIGHT  # 20 extra pixels for feedback text
 WIN_CAPTION = "RobotCleanerGame"
 
 B_DROP_P = pygame.image.load(PATH_TOKENS_64 + "B_DROP_PRESSED.png")
@@ -64,6 +65,11 @@ PRESSED_BUTTON = "pressed_button"
 
 CURRENT_SCREEN = "current_screen"
 MAIN_SCREEN = "main_screen"
+
+FEEDBACK_MSG_PRESS_BUTTON = "Press a button to choose an action to perform."
+FEEDBACK_MSG_CLICK_GRID = "Now click the grid to choose a tile to perform the action upon."
+FEEDBACK_MSG_PERFORMED_ACTION = "Performed action: "
+FEEDBACK_MSG_WRONG_TILE_FOR_ACTION = "Action can't be done here."
 
 
 def map_pixel_to_tile_coord(pixel_coord: int) -> int:
@@ -90,6 +96,12 @@ class InterfacePyGame(Interface):
 
         # Dictionary to store items on the screen that can be clicked
         self.screen_inventory = {}
+
+        # Store feedback message
+        self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
+
+    def give_user_feedback(self, feedback: str):
+        self.feedback_msg = feedback
 
     def title_screen(self, title_size=32, color=COLOR_WHITE, x=200, y=100) -> None:
         self.window.fill(COLOR_BLACK)
@@ -141,7 +153,7 @@ class InterfacePyGame(Interface):
     def draw_menu(self):
         # Draw the menu at the bottom left row
         x = 0
-        y = self.win_height - TILE_SIZE
+        y = self.win_height - TILE_SIZE - FEEDBACK_TEXT_BOX_HEIGHT
 
         avail = Game.is_action_type_in_actions(Move, self.actions)
         self.draw_menu_button(Move, avail, STATE_FLAG_MOVE_PRESSED, B_MOVE_P, B_MOVE_U, x, y)
@@ -157,6 +169,9 @@ class InterfacePyGame(Interface):
         x += BUTTON_WIDTH
         avail = Game.is_action_type_in_actions(Sweep, self.actions)
         self.draw_menu_button(Sweep, avail, STATE_FLAG_SWEP_PRESSED, B_SWEP_P, B_SWEP_U, x, y)
+
+        if len(self.feedback_msg) > 0:
+            self.feedback_box()
 
     def draw_menu_button(self, action, available, state_flag, image_pressed, image_unpressed, x, y) -> None:
         if not available:
@@ -174,6 +189,14 @@ class InterfacePyGame(Interface):
             self.screen_inventory[(tile_x + 1, tile_y)] = action
 
         self.window.blit(image, (x, y))
+
+    def feedback_box(self, font_size=16, color=COLOR_WHITE):
+        x = 16
+        y = WIN_HEIGHT - FEEDBACK_TEXT_BOX_HEIGHT + 2
+
+        font = pygame.font.SysFont(FONT_COURIER_NEW, font_size, True)
+        text = font.render(self.feedback_msg, True, color)
+        self.window.blit(text, (x, y))
 
     def draw_stack(self):
         marker_image = pygame.image.load(PATH_TOKENS_64 + "CARRIED_ITEMS_MARKER_64x64.png")
@@ -251,20 +274,31 @@ class InterfacePyGame(Interface):
             if screen_item.__name__ in {STATE_FLAG_MOVE_PRESSED, STATE_FLAG_DROP_PRESSED,
                                         STATE_FLAG_PICK_PRESSED, STATE_FLAG_SWEP_PRESSED}:
                 self.state[PRESSED_BUTTON] = screen_item.__name__
+                self.feedback_msg = FEEDBACK_MSG_CLICK_GRID
         except AttributeError:
             # If not applicable, continue
             pass
+
+        # Catch no button pressed and stop here
+        if self.state[PRESSED_BUTTON] is None:
+            return None
 
         try:
             for a in screen_item:
                 if a.__class__.__name__ == self.state[PRESSED_BUTTON]:
                     # Can reset the Pressed Button state
                     self.state[PRESSED_BUTTON] = None
+                    self.feedback_msg = FEEDBACK_MSG_PERFORMED_ACTION + a.__class__.__name__
                     return a
+
+                # If we found nothing...
+                self.feedback_msg = FEEDBACK_MSG_WRONG_TILE_FOR_ACTION
+
         except TypeError:
             # Continue
             pass
 
+        # Last catch all
         return None
 
 
