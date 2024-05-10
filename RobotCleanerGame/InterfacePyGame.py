@@ -70,7 +70,7 @@ FEEDBACK_MSG_PRESS_BUTTON = "Press a button to choose an action to perform."
 FEEDBACK_MSG_CLICK_GRID = "Now click the grid to choose a tile to perform the action upon."
 FEEDBACK_MSG_PERFORMED_ACTION = "Performed action: "
 FEEDBACK_MSG_WRONG_TILE_FOR_ACTION = "Action can't be done here."
-
+FEEDBACK_MSG_GRID_CLEARED = "All cleared!"
 
 def map_pixel_to_tile_coord(pixel_coord: int) -> int:
     return int(pixel_coord / TILE_SIZE)
@@ -100,7 +100,7 @@ class InterfacePyGame(Interface):
         # Store feedback message
         self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
 
-    def give_user_feedback(self, feedback: str):
+    def give_user_feedback(self, feedback: str) -> None:
         self.feedback_msg = feedback
 
     def title_screen(self, title_size=32, color=COLOR_WHITE, x=200, y=100) -> None:
@@ -228,6 +228,9 @@ class InterfacePyGame(Interface):
 
         # Refresh the screen inventory
         self.screen_inventory = {}
+
+    def event_grid_cleared(self) -> None:
+        self.give_user_feedback(FEEDBACK_MSG_GRID_CLEARED)
 
     def event_quit(self) -> None:
         pygame.quit()

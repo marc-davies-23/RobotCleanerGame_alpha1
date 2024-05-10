@@ -69,7 +69,7 @@ class Interface:
 
         return lookup[selected]
 
-    def give_user_feedback(self, feedback: str):
+    def give_user_feedback(self, feedback: str) -> None:
         # Might need to be an instance class with inheritance
         print(feedback)
 
