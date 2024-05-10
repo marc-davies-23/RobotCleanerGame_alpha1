@@ -41,11 +41,12 @@ class Robot:
     def is_stack_empty(self):
         return self.stack == []
 
+    """#TBD
     def sweep(self):
         if len(self.stack) >= MAX_SWEEP:
             return 1  # OK
         else:
-            return 0  # Not OK
+            return 0  # Not OK"""
 
 
 if __name__ == "__main__":

@@ -117,6 +117,19 @@ class Game:
 
         return False
 
+    @staticmethod
+    def order_actions_by_coords(actions: [Action]) -> dict[(int, int): set[Action]]:
+        ordered_actions = {}
+        for a in actions:
+            if a.coords in ordered_actions:
+                # Add to set
+                ordered_actions[a.coords].add(a)
+            else:
+                # Create set
+                ordered_actions[a.coords] = {a}
+
+        return ordered_actions
+
     def apply_drop(self, drop: Drop) -> bool:
         """
         Apply a Drop Action, if possible.

@@ -66,3 +66,6 @@ if __name__ == "__main__":
     g = build_game_from_file("../GameFiles/SetPieces/Game1/game.rcgg")
     g.interface = Interface(g)
     print(g.grid)
+    actions = g.get_possible_actions()
+    print(actions)
+    print(g.order_actions_by_coords(actions))
