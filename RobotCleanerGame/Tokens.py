@@ -19,15 +19,15 @@ ROBOT_TOKEN = "¥"
 
 # Tokens short reference & description
 TOKEN_DESCRIPTIONS: dict[str, str] = {
-    "r": "Red Item",
-    "g": "Green Item",
-    "b": "Blue Item",
-    "R": "Red Bin",
-    "G": "Green Bin",
-    "B": "Blue Bin",
+    ROBOT_TOKEN: "Robot",
+    "r": "Food Item",
+    "g": "Plastic Item",
+    "b": "Glass Item",
+    "R": "Food Bin",
+    "G": "Plastic Bin",
+    "B": "Glass Bin",
     "*": "Universal Bin",
     "m": "Mess",
-    ROBOT_TOKEN: "Robot",
 }
 
 SET_OF_ITEMS = {"r", "g", "b"}

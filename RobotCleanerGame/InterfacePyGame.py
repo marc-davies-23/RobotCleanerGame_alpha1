@@ -6,7 +6,7 @@ import pygame
 from Game import *
 from Interface import Interface
 from Robot import MAX_CARRY
-from RobotCleanerGame import Action
+from Tokens import TOKEN_DESCRIPTIONS
 
 BUTTON_WIDTH = 128
 
@@ -61,16 +61,22 @@ STATE_FLAG_DROP_PRESSED = Drop.__name__
 STATE_FLAG_PICK_PRESSED = PickUp.__name__
 STATE_FLAG_SWEP_PRESSED = Sweep.__name__
 
-PRESSED_BUTTON = "pressed_button"
+PRESSED_BUTTON = "pressed"
 
-CURRENT_SCREEN = "current_screen"
-MAIN_SCREEN = "main_screen"
+CURRENT_SCREEN = "curr_scr"
+PREVIOUS_SCREEN = "prev_scr"
+MAIN_SCREEN = "main"
+MENU_SCREEN = "menu"
+HELP_SCREEN = "help"
 
 FEEDBACK_MSG_PRESS_BUTTON = "Press a button to choose an action to perform."
 FEEDBACK_MSG_CLICK_GRID = "Now click the grid to choose a tile to perform the action upon."
-FEEDBACK_MSG_PERFORMED_ACTION = "Performed action: "
+FEEDBACK_MSG_PERFORMED_ACTION = "Performed action successfully."
 FEEDBACK_MSG_WRONG_TILE_FOR_ACTION = "Action can't be done here."
 FEEDBACK_MSG_GRID_CLEARED = "All cleared!"
+FEEDBACK_MSG_PRESS_H_FOR_HELP = "Press H for Help."
+FEEDBACK_MSG_PRESS_B_TO_GO_BACK = "Press B to go back."
+
 
 def map_pixel_to_tile_coord(pixel_coord: int) -> int:
     return int(pixel_coord / TILE_SIZE)
@@ -98,7 +104,7 @@ class InterfacePyGame(Interface):
         self.screen_inventory = {}
 
         # Store feedback message
-        self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
+        self.feedback_msg = FEEDBACK_MSG_PRESS_H_FOR_HELP
 
     def give_user_feedback(self, feedback: str) -> None:
         self.feedback_msg = feedback
@@ -121,6 +127,34 @@ class InterfacePyGame(Interface):
 
     def draw_background_tile(self, x: int, y: int) -> None:
         self.window.blit(TILE_IMG, (x, y))
+
+    def beat(self) -> bool:
+        # Are we on an animation beat?
+        return self.animation_beat == 0
+
+    def draw_help_screen(self):
+        # Clear the window first
+        self.window.fill(COLOR_BLACK)
+
+        self.draw_help_screen_token_key()
+
+        self.feedback_msg = FEEDBACK_MSG_PRESS_B_TO_GO_BACK
+
+    def draw_help_screen_token_key(self, subtitle_size=24, text_size=16, padding=8, color=COLOR_WHITE):
+        x = 0
+        y = 0
+
+        font_sub = pygame.font.SysFont(FONT_COURIER_NEW, subtitle_size, True)
+        font_txt = pygame.font.SysFont(FONT_COURIER_NEW, text_size, False)
+        for key, txt in TOKEN_DESCRIPTIONS.items():
+
+            TOKEN_MAP[key].draw(self.window, x, y, first=True)
+            text = font_sub.render(txt + ": ", True, color)
+            self.window.blit(text, (x + TILE_SIZE, y + padding))
+            text = font_txt.render(HELP_TOKEN_ADDITIONAL_TEXT[key], True, color)
+            self.window.blit(text, (x + TILE_SIZE, y + 5 * padding))
+
+            y += TILE_SIZE
 
     def draw_main_screen(self):
         # Clear the window first
@@ -235,15 +269,10 @@ class InterfacePyGame(Interface):
     def event_quit(self) -> None:
         pygame.quit()
 
-    def beat(self) -> bool:
-        # Are we on an animation beat?
-        return self.animation_beat == 0
-
     def display_state(self) -> None:
+        screen = self.state[CURRENT_SCREEN]
 
-        if True:
-            # Draw principle screen
-            self.draw_main_screen()
+        getattr(self, "draw_" + screen + "_screen")()
 
         pygame.display.update()
 
@@ -257,7 +286,18 @@ class InterfacePyGame(Interface):
                 case _:
                     pass
 
-        # key = pygame.key.get_pressed()
+        # Check for key press
+        key = pygame.key.get_pressed()
+        if key[pygame.K_h]:
+            if self.state[CURRENT_SCREEN] != HELP_SCREEN:  # Prevents double-firing
+                self.state[PREVIOUS_SCREEN] = self.state[CURRENT_SCREEN]
+                self.state[CURRENT_SCREEN] = HELP_SCREEN
+        if key[pygame.K_b]:
+            current = self.state[CURRENT_SCREEN]
+            previous = self.state[PREVIOUS_SCREEN]
+            if current == HELP_SCREEN and previous != HELP_SCREEN:  # Can only go back from Help Screen
+                self.state[PREVIOUS_SCREEN] = current
+                self.state[CURRENT_SCREEN] = previous
 
         return None
 
@@ -269,7 +309,9 @@ class InterfacePyGame(Interface):
             screen_item = self.screen_inventory[(x, y)]
 
         except KeyError:
-            # Nothing in inventory, just quit
+            # Nothing in inventory, reset
+            self.state[PRESSED_BUTTON] = None
+            self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
             return None
 
         try:
@@ -278,12 +320,14 @@ class InterfacePyGame(Interface):
                                         STATE_FLAG_PICK_PRESSED, STATE_FLAG_SWEP_PRESSED}:
                 self.state[PRESSED_BUTTON] = screen_item.__name__
                 self.feedback_msg = FEEDBACK_MSG_CLICK_GRID
+
         except AttributeError:
             # If not applicable, continue
             pass
 
         # Catch no button pressed and stop here
         if self.state[PRESSED_BUTTON] is None:
+            self.feedback_msg = FEEDBACK_MSG_PRESS_BUTTON
             return None
 
         try:
@@ -291,7 +335,7 @@ class InterfacePyGame(Interface):
                 if a.__class__.__name__ == self.state[PRESSED_BUTTON]:
                     # Can reset the Pressed Button state
                     self.state[PRESSED_BUTTON] = None
-                    self.feedback_msg = FEEDBACK_MSG_PERFORMED_ACTION + a.__class__.__name__
+                    self.feedback_msg = FEEDBACK_MSG_PERFORMED_ACTION
                     return a
 
                 # If we found nothing...
@@ -318,8 +362,11 @@ class PyGameToken:
         for file in files:
             self.images.append(pygame.image.load(folder + file))
 
-    def get_current_image(self) -> pygame.Surface:
-        return self.images[self.anim_idx]
+    def get_image(self, first: bool = False) -> pygame.Surface:
+        if first:
+            return self.images[0]
+        else:
+            return self.images[self.anim_idx]
 
     def increment_idx(self) -> None:
         if self.anim_max == 0:
@@ -332,13 +379,14 @@ class PyGameToken:
         else:
             self.anim_idx += 1
 
-    def draw(self, window, x: int, y: int, increment: bool = True) -> None:
-        window.blit(self.get_current_image(), (x, y))
-        if increment:
+    def draw(self, window, x: int, y: int, first: bool = False, increment: bool = True) -> None:
+        window.blit(self.get_image(first), (x, y))
+        if increment and not first:
             self.increment_idx()
 
 
 TOKEN_MAP: dict[str, PyGameToken] = {
+    ROBOT_TOKEN: PyGameToken(PATH_TOKENS_64, FILES_ROBOT),
     "r": PyGameToken(PATH_TOKENS_64, FILES_RED_ITEM),
     "g": PyGameToken(PATH_TOKENS_64, FILES_GREEN_ITEM),
     "b": PyGameToken(PATH_TOKENS_64, FILES_BLUE_ITEM),
@@ -347,7 +395,18 @@ TOKEN_MAP: dict[str, PyGameToken] = {
     "B": PyGameToken(PATH_TOKENS_64, FILES_BLUE_BIN),
     "*": PyGameToken(PATH_TOKENS_64, FILES_UNIVERSAL_BIN),
     "m": PyGameToken(PATH_TOKENS_64, FILES_MESS),
-    ROBOT_TOKEN: PyGameToken(PATH_TOKENS_64, FILES_ROBOT),
+}
+
+HELP_TOKEN_ADDITIONAL_TEXT: dict[str, str] = {
+    ROBOT_TOKEN: "The robot can carry up to three items, and sweep mess.",
+    "r": "Can be carried by the robot and put into the correct bin(s).",
+    "g": "Can be carried by the robot and put into the correct bin(s).",
+    "b": "Can be carried by the robot and put into the correct bin(s).",
+    "R": "Can accept Food for full points.",
+    "G": "Can accept Plastic for full points.",
+    "B": "Can accept Glass for full points",
+    "*": "Can accept all garbage for half points",
+    "m": "Sweeping gives two point",
 }
 
 if __name__ == "__main__":
