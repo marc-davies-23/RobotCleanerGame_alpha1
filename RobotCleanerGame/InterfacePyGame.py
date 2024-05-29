@@ -140,6 +140,8 @@ class InterfacePyGame(Interface):
 
         self.feedback_msg = FEEDBACK_MSG_PRESS_B_TO_GO_BACK
 
+        self.feedback_box()
+
     def draw_help_screen_token_key(self, subtitle_size=24, text_size=16, padding=8, color=COLOR_WHITE):
         x = 0
         y = 0
@@ -298,6 +300,7 @@ class InterfacePyGame(Interface):
             if current == HELP_SCREEN and previous != HELP_SCREEN:  # Can only go back from Help Screen
                 self.state[PREVIOUS_SCREEN] = current
                 self.state[CURRENT_SCREEN] = previous
+                self.feedback_msg = FEEDBACK_MSG_PRESS_H_FOR_HELP
 
         return None
 
